@@ -2,7 +2,7 @@
 ### Functions
 
 symMat <- function(m){
-  stopifnot(class(m) == "matrix")
+  stopifnot(is.matrix(m))
   stopifnot(nrow(m) == ncol(m))
   
   return((m+t(m))/2)
@@ -10,7 +10,9 @@ symMat <- function(m){
 
 ## Make a mixing matrix from a preference matrix and a Total activity vector
 ## If not specified, total activity in each class is set to 1
-pref2mix <- function(phi, T=NULL, Lmin=1, Lfac=1.01){
+## If preferences use more than all of some group's activity, phi is
+## shrunk uniformly (with a warning) so that row sums still equal T
+pref2mix <- function(phi, T=NULL, Lfac=1.01, warn=TRUE){
   
   phi <- symMat(phi)
   
@@ -19,8 +21,13 @@ pref2mix <- function(phi, T=NULL, Lmin=1, Lfac=1.01){
   p <- T/sum(T)
   pp <- as.vector(phi %*% p)
   Lhat <- max(pp)
-  L <- pmax(Lmin, Lfac*Lhat)
-  sig <- L-pp
+  L <- max(1, Lfac*Lhat)
+  if(L>1){
+    if(warn) warning("pref2mix: preferences too strong; shrinking phi by factor ", signif(L, 4))
+    phi <- phi/L
+    pp <- pp/L
+  }
+  sig <- 1-pp
   ## sig <- pmin(sig, 0*sig) ## This version doesn't work, which means
   ## there is probably still something fragile here.
   D <- sum(p*sig)
@@ -46,7 +53,7 @@ mix2pref <- function(rho
   ) + (delta-alpha)*diag(rep(1, nr))
   
   for (i in 1:iterations){
-    rhoc <- pref2mix(phi, T)
+    rhoc <- pref2mix(phi, T, warn=FALSE)
 	 if(verbose){
 	 	print(paste0("m2p iteration #", i))
     	print(rhoc)

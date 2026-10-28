@@ -28,8 +28,9 @@ It then keeps the preferences, changes the activity, and rebuilds the matrix.
 Given `phi` and `T`:
 
     pp_i  = sum_j phi[i,j] p_j          # share of i's activity that is "preferential"
-    L     = max(Lmin, Lfac * max(pp))   # usually 1 (Lmin = 1, Lfac = 1.01)
-    sig_i = L - pp_i                    # share left over for proportionate mixing
+    L     = max(1, Lfac * max(pp))      # Lfac = 1.01
+    if L > 1: phi <- phi/L; pp <- pp/L  # shrink preferences (with a warning)
+    sig_i = 1 - pp_i                    # share left over for proportionate mixing
     D     = sum_i p_i sig_i
     rho[i,j] = (T_i T_j / sum(T)) * ( phi[i,j] + sig_i sig_j / D )
 
@@ -44,11 +45,14 @@ So each entry is the random-mixing ("proportionate") expectation
 Properties (checked numerically):
 
 * `rho` is symmetric by construction.
-* Row sums are `L * T`. When `max(phi %*% p) <= 1/Lfac` we have `L = 1` and the
-  row sums are exactly `T`. If preferences are too strong for the given `p`,
-  `L > 1` and **all activities are inflated by the factor L** (e.g., 11% in one
-  test). The `Lfac = 1.01` keeps every `sig_i > 0` (at least ~1% of the
-  most-preferential group's activity is proportionate).
+* Row sums are exactly `T`. If preferences are too strong for the given `p`
+  (`max(phi %*% p) > 1/Lfac`), `phi` is shrunk uniformly by `L` and a warning
+  is issued (`warn = FALSE` suppresses it; `mix2pref` does this internally).
+  The original code instead inflated all activities by `L`; the new result is
+  exactly the old one divided by `L`. `Lfac = 1.01` keeps every `sig_i > 0`
+  (at least ~1% of the most-preferential group's activity is proportionate).
+* When `L > 1`, `phi` and `c * phi` give the same matrix, so a fitted `phi` is
+  only defined up to scale in that regime.
 * `phi = 0` gives pure proportionate (random) mixing.
 
 ## Fitting preferences (`mix2pref`)
@@ -75,8 +79,7 @@ Notes:
 ## Adjusting to new activity (`popAdj`)
 
 `popAdj(rho, Tnew)` = symmetrize `rho`, fit `phi` with `mix2pref`, then return
-`pref2mix(phi, Tnew)`. The result is symmetric with row sums `Tnew` (assuming
-`L = 1`), and retains the fitted preferences.
+`pref2mix(phi, Tnew)`. The result is symmetric with row sums `Tnew`, and retains the fitted preferences.
 
 Because `phi` is not unique, the adjusted matrix depends somewhat on
 `delta`/`alpha` (in a test with a large shift in `T`, entries differed by up to
@@ -102,12 +105,10 @@ provincial data. These data files are not here and we will not use them.
 
 ## Issues spotted
 
-* `symMat` fails in R >= 4.0: `class(m)` is `c("matrix", "array")`, so
-  `stopifnot(class(m) == "matrix")` errors. Should be `stopifnot(is.matrix(m))`.
-  As written, none of the functions run on current R.
-* Row sums of `pref2mix` are `L*T`, not `T`, when `L > 1`; this happens
-  silently. In `popAdj`, a large change in `p` could push `phi %*% p` above
-  1/1.01 and inflate activity. A warning would help.
+* (Fixed) `symMat` failed in R >= 4.0 because `class(m)` is
+  `c("matrix", "array")`; now uses `is.matrix(m)`.
+* (Fixed) Row sums of `pref2mix` were silently inflated to `L*T` when `L > 1`;
+  `phi` is now shrunk instead, with a warning. `Lmin` argument removed.
 * `mix2pref` has no convergence check; `verbose` only prints matrices.
 * Unused variables: `B` in `pref2mix`, `T` in `popAdj`.
 * Dependence on `delta`/`alpha` is undocumented and affects results.
