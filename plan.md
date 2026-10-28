@@ -50,3 +50,23 @@ and mixing preferences, whereas naive reuse of the matrix does not.
 * Which source/target pair is most compelling for the grant?
 * Show per-capita or total contacts in the main panels? (Total contacts make
   the reciprocity point; per-capita is what modellers usually see.)
+
+## Status (2026-10-27)
+
+Pipeline built: `make heatmaps.Rout` runs `prep.R` -> `adjust.R` ->
+`heatmaps.R` and produces `heatmaps.Rout.pdf`. Page 1 is the 2x2 figure (A:
+UK per capita, symmetrized; B: adjusted to South Africa 2020; C: reciprocity
+error of naive reuse; D: log2 B/A). Page 2 is the fitted `phi`.
+
+Findings so far:
+
+* 40 iterations of `mix2pref` leave ~12% error for POLYMOD UK; 1000 iterations
+  gets ~1e-6 and runs quickly, so `adjust.R` uses 1000.
+* UK -> Niger (very young) is too extreme: `phi %*% p` exceeds 1 for children,
+  `pref2mix` shrinks `phi` (factor ~1.2), and adult-child contacts collapse
+  (to ~15% of UK rates), which is implausible. Results also depend strongly on
+  `alpha`. UK -> South Africa, India or Italy all behave sensibly and are
+  insensitive to `delta`/`alpha`, so the demo uses South Africa.
+* Symmetrizing POLYMOD itself changes per-capita activity noticeably (70+
+  falls from 7.3 to 5.7 contacts/day); panel A shows the symmetrized version
+  so that D isolates the population effect.

@@ -20,6 +20,14 @@ Sources += $(wildcard *.R *.md)
 test.R:
 mixpref.R:
 
+## Demonstration (public data: POLYMOD UK, WPP populations)
+autopipeR = defined
+
+prep.Rout: prep.R
+adjust.Rout: adjust.R mixpref.R prep.rda
+heatmaps.Rout: heatmaps.R adjust.rda
+## heatmaps.Rout.pdf: heatmaps.R
+
 ######################################################################
 
 ### Makestuff
@@ -40,7 +48,7 @@ makestuff:
 
 -include makestuff/os.mk
 
-## -include makestuff/pipeR.mk
+-include makestuff/pipeR.mk
 
 -include makestuff/git.mk
 -include makestuff/visual.mk
