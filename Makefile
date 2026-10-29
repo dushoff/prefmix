@@ -35,7 +35,13 @@ prem/contact_all.rdata:
 prem/popage_total2020.csv:
 	mkdir -p prem && curl -sfL -o $@ $(premurl)/input/pop/popage_total2020.csv
 
-rsa_prep.Rout: rsa_prep.R prem/contact_all.rdata prem/popage_total2020.csv
+## WPP 2024 data files (not installing the package)
+wppurl = https://raw.githubusercontent.com/PPgp/wpp2024/main/data
+Ignore += wpp2024
+wpp2024/%.rda:
+	mkdir -p wpp2024 && curl -sfL -o $@ $(wppurl)/$*.rda
+
+rsa_prep.Rout: rsa_prep.R prem/contact_all.rdata prem/popage_total2020.csv wpp2024/popAge1dt.rda wpp2024/popprojAge1dt.rda
 rsa_adjust.Rout: adjust.R mixpref.R rsa_prep.rda
 	$(pipeR)
 rsa_heatmaps.Rout: heatmaps.R rsa_adjust.rda

@@ -77,8 +77,9 @@ Findings so far:
 synthetic matrix for ZAF (16 five-year groups, 75+ open; downloaded from
 github.com/kieshaprem/synthetic-contact-matrices) with the WPP 2019 2020
 population Prem used. Target: 2035, projected by applying age-specific
-2020 -> 2035 growth ratios from WPP 2017 (bundled with socialmixr) to Prem's
-2020 population. Same `adjust.R` and `heatmaps.R` as the UK example.
+2020 -> 2035 growth ratios from WPP 2024 (2020 estimate, 2035 median
+projection; data files fetched from github.com/PPgp/wpp2024 rather than
+installing the package) to Prem's 2020 population. Same `adjust.R` and `heatmaps.R` as the UK example.
 
 The only South African survey on socialcontactdata.org (CODA, Dodd et al.,
 2011) surveyed only adults in Western Cape communities and recorded contact
@@ -86,15 +87,21 @@ ages in 5 coarse bins, so we did not use it.
 
 Results (15-year projection):
 
-* Shares of the population aged 45+ rise by 12-55%; under-10s fall by ~16%.
-* Per-capita contact rates change from -19% to +63% by cell; the change is
-  mostly by contact age (more contacts with people 45+, fewer with young
-  children). Contacts with people 45+ rise from 18% to 23% of all contacts.
-* Mean contacts per person: -1.2%; dominant eigenvalue (proportional to R0):
-  -1.4%. So overall transmission potential barely moves, but who contacts whom
+* Population shares rise 15-48% for ages 40-54 and 70+, and fall 8-21% for
+  under-10s and 20-39 (30-34 falls most, reflecting smaller cohorts born
+  around 2000).
+* Per-capita contact rates change from -24% to +54% by cell; the change is
+  mostly by contact age (more contacts with people 40-54 and 70+, fewer with
+  young children and people 30-34). Contacts with people 45+ rise from 18% to
+  24% of all contacts.
+* Mean contacts per person: -1.0%; dominant eigenvalue (proportional to R0):
+  -0.9%. So overall transmission potential barely moves, but who contacts whom
   shifts noticeably.
 * Naive reuse of the 2020 per-capita matrix in 2035 breaks reciprocity by up to
   ~1.9x (older participants' contacts with younger people overstated).
+* With WPP 2017 projections instead (earlier version), results were similar in
+  scale (-19% to +63% by cell; eigenvalue -1.4%), but WPP 2024 shows a
+  distinct dip at 30-34.
 * No `phi` shrinking was needed (no `pref2mix` warning).
 
 Also changed: `naive` is now the symmetrized source matrix reused in the target

@@ -2,7 +2,6 @@
 ## with population projected from 2020 to 2035
 
 library(shellpipes)
-suppressMessages(library(socialmixr))
 
 baseYear <- 2020
 projYear <- 2035
@@ -21,14 +20,18 @@ za <- unlist(pp[pp[[1]]=="South Africa", grep("^age", names(pp))])
 agg <- function(pop, lower) as.vector(tapply(pop, findInterval(lower, ageLimits), sum))
 orig_pop <- setNames(agg(za, as.numeric(sub("age", "", names(za)))), ageGroups)
 
-## Project with age-specific growth ratios from the WPP 2017 median projection
-## (bundled with socialmixr), applied to Prem's 2020 population
-wp <- suppressWarnings(wpp_age("South Africa", c(baseYear, projYear)))
-wpAgg <- function(y){
-	w <- wp[wp$year==y, ]
-	agg(w$population, w$lower.age.limit)
+## Project with age-specific growth ratios from WPP 2024 (estimates to 2023,
+## median projection after), applied to Prem's 2020 population
+## Data files from github.com/PPgp/wpp2024 (1-year ages, 100+ open, thousands)
+zaf <- 710
+wppPop <- function(obj, y){
+	e <- new.env()
+	load(matchFile(paste0(obj, ".rda")), envir=e)
+	w <- as.data.frame(e[[obj]])
+	w <- w[w$country_code==zaf & as.numeric(w$year)==y, ]
+	agg(w$popM + w$popF, w$age)
 }
-growth <- wpAgg(projYear)/wpAgg(baseYear)
+growth <- wppPop("popprojAge1dt", projYear)/wppPop("popAge1dt", baseYear)
 new_pop <- orig_pop*growth
 
 print(round(mm, 2))
