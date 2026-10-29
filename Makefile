@@ -46,7 +46,14 @@ rsa_adjust.Rout: adjust.R mixpref.R rsa_prep.rda
 	$(pipeR)
 rsa_heatmaps.Rout: heatmaps.R rsa_adjust.rda
 	$(pipeR)
-## heatmaps.Rout.pdf: heatmaps.R
+
+## Five broad age groups; two-panel figure
+rsa5_prep.Rout: coarse.R rsa_prep.rda
+	$(pipeR)
+rsa5_adjust.Rout: adjust.R mixpref.R rsa5_prep.rda
+	$(pipeR)
+rsa5_pair.Rout: pair.R makestuff/okabe.R rsa5_adjust.rda
+	$(pipeR)
 
 ######################################################################
 

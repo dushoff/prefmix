@@ -109,3 +109,21 @@ population, so panel C shows only the effect of the population change (before,
 it also included non-reciprocity in the source data). Prem's matrix is not
 reciprocal in its own population: symmetrizing raises 75+ per-capita contacts
 from 6.5 to 8.1/day.
+
+## Five-group two-panel figure (2026-10-28)
+
+`make rsa5_pair.Rout` -> `rsa5_pair.Rout.pdf`. `coarse.R` aggregates the
+Prem matrix and populations to 0-4, 5-19, 20-39, 40-59, 60+ (summing total
+contacts, then dividing by group population); the standard `adjust.R` then
+runs on the coarse matrix. `pair.R` shows (A) the 2020 per-capita matrix and
+(B) percent change by 2035, with values printed in cells. Continuous palette
+comes from `makestuff/okabe.R` defaults (viridis); panel B uses RdBu.
+
+* Changes are mostly by contact age: -10 to -16% for contacts with 0-4 and
+  20-39, ~0 to -6% with 5-19, +19 to +27% with 40-59 and 60+.
+* Aggregating first and then adjusting gives nearly the same result as
+  adjusting at 5-year resolution and then aggregating (within ~0.02).
+* The changes are close to simply rescaling each column by the change in that
+  group's population share; `convertPrem`'s extra contribution (keeping
+  per-capita activity fixed) is a small correction here. The large contrast is
+  with naive reuse (reciprocity error up to ~1.9x at 5-year resolution).
