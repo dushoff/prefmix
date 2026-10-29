@@ -5,7 +5,8 @@ library(ggplot2)
 library(patchwork)
 sourceFiles()
 loadEnvironments()
-startGraphics(width=9, height=4.5)
+## Sized for one panel of a 7-inch-wide figure; don't rescale in LaTeX
+startGraphics(width=3.6, height=2.4)
 
 ## Long format; row = participant (y), column = contact (x)
 long <- function(m){
@@ -20,17 +21,20 @@ base <- function(d, title){
 		+ geom_tile(colour="white")
 		+ coord_equal()
 		+ labs(x="Age of contact", y="Age of participant", title=title)
-		+ theme_minimal(base_size=11)
-		+ theme(panel.grid=element_blank())
+		+ theme_minimal(base_size=8)
+		+ theme(panel.grid=element_blank()
+			, plot.title=element_text(size=8)
+			, axis.text.x=element_text(angle=45, hjust=1)
+		)
 	)
 }
 
 dA <- long(ref)
 dA$label <- sprintf("%.1f", dA$value)
 ## Continuous palette comes from the okabe.R default (viridis)
-pA <- (base(dA, paste0("A. ", sourceLabel, "\ncontacts per person per day"))
+pA <- (base(dA, paste0(sub(" \\(.*", "", sourceLabel), " contacts"))
 	+ scale_fill_continuous(trans="log2", guide="none")
-	+ geom_text(aes(label=label), size=3.5
+	+ geom_text(aes(label=label), size=2
 		, colour=ifelse(dA$value > median(dA$value), "black", "white")
 	)
 )
@@ -39,9 +43,12 @@ dB <- long(log2(adj/ref))
 pct <- round(100*(2^dB$value - 1))
 dB$label <- paste0(ifelse(pct>0, "+", ""), pct, "%")
 lim <- max(abs(dB$value))
-pB <- (base(dB, paste0("B. Change by ", sub(" \\(.*", "", targetLabel)))
+## Target year only (target label is "<place> <year> (projected)")
+pB <- (base(dB, paste0("Change by ", sub(".* ", "", sub(" \\(.*", "", targetLabel))))
 	+ scale_fill_distiller(palette="RdBu", limits=c(-lim, lim), guide="none")
-	+ geom_text(aes(label=label), size=3.5)
+	+ geom_text(aes(label=label), size=2)
+	## Rows are shared with the left panel
+	+ theme(axis.title.y=element_blank(), axis.text.y=element_blank())
 )
 
 print(pA + pB)
