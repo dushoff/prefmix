@@ -26,7 +26,7 @@ base <- function(m, title){
 
 rateLim <- range(c(ref, adj))
 rateScale <- scale_fill_viridis_c(trans="log2", limits=rateLim
-	, breaks=c(0.125, 0.5, 2, 8), labels=c("1/8", "1/2", "2", "8")
+	, breaks=2^seq(-8, 4, 2), labels=function(x) signif(x, 2)
 	, name="Contacts\nper day"
 )
 
@@ -35,16 +35,16 @@ divScale <- function(m, name){
 	scale_fill_distiller(palette="RdBu", limits=c(-lim, lim), name=name)
 }
 
-pA <- base(ref, paste0("A. ", sourceCountry, " (POLYMOD), per capita")) + rateScale
-pB <- base(adj, paste0("B. Adjusted to ", targetCountry, " ", targetYear, ", per capita")) + rateScale
+pA <- base(ref, paste0("A. ", sourceLabel, "\nper capita")) + rateScale
+pB <- base(adj, paste0("B. Adjusted to ", targetLabel, "\nper capita")) + rateScale
 
 asym <- log2(naiveTot/t(naiveTot))
-pC <- (base(asym, paste0("C. Naive reuse in ", targetCountry, ": reciprocity error"))
+pC <- (base(asym, paste0("C. Naive reuse in ", targetLabel, "\nreciprocity error"))
 	+ divScale(asym, "log2 ratio\n(i,j) vs (j,i)")
 )
 
 chg <- log2(adj/ref)
-pD <- (base(chg, "D. Change in per-capita rates (B vs A)")
+pD <- (base(chg, "D. Change in per-capita rates\n(B vs A)")
 	+ divScale(chg, "log2 ratio")
 )
 

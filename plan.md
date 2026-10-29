@@ -70,3 +70,35 @@ Findings so far:
 * Symmetrizing POLYMOD itself changes per-capita activity noticeably (70+
   falls from 7.3 to 5.7 contacts/day); panel A shows the symmetrized version
   so that D isolates the population effect.
+
+## South Africa only (2026-10-28)
+
+`make rsa_heatmaps.Rout` -> `rsa_heatmaps.Rout.pdf`. Source: Prem et al. 2021
+synthetic matrix for ZAF (16 five-year groups, 75+ open; downloaded from
+github.com/kieshaprem/synthetic-contact-matrices) with the WPP 2019 2020
+population Prem used. Target: 2035, projected by applying age-specific
+2020 -> 2035 growth ratios from WPP 2017 (bundled with socialmixr) to Prem's
+2020 population. Same `adjust.R` and `heatmaps.R` as the UK example.
+
+The only South African survey on socialcontactdata.org (CODA, Dodd et al.,
+2011) surveyed only adults in Western Cape communities and recorded contact
+ages in 5 coarse bins, so we did not use it.
+
+Results (15-year projection):
+
+* Shares of the population aged 45+ rise by 12-55%; under-10s fall by ~16%.
+* Per-capita contact rates change from -19% to +63% by cell; the change is
+  mostly by contact age (more contacts with people 45+, fewer with young
+  children). Contacts with people 45+ rise from 18% to 23% of all contacts.
+* Mean contacts per person: -1.2%; dominant eigenvalue (proportional to R0):
+  -1.4%. So overall transmission potential barely moves, but who contacts whom
+  shifts noticeably.
+* Naive reuse of the 2020 per-capita matrix in 2035 breaks reciprocity by up to
+  ~1.9x (older participants' contacts with younger people overstated).
+* No `phi` shrinking was needed (no `pref2mix` warning).
+
+Also changed: `naive` is now the symmetrized source matrix reused in the target
+population, so panel C shows only the effect of the population change (before,
+it also included non-reciprocity in the source data). Prem's matrix is not
+reciprocal in its own population: symmetrizing raises 75+ per-capita contacts
+from 6.5 to 8.1/day.

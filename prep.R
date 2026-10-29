@@ -8,6 +8,8 @@ ageLimits <- seq(0, 70, 10)
 sourceCountry <- "United Kingdom"
 targetCountry <- "South Africa"
 targetYear <- 2020
+sourceLabel <- paste(sourceCountry, "(POLYMOD)")
+targetLabel <- paste(targetCountry, targetYear)
 
 ## Per-capita contact rates: row = participant, column = contact (Prem convention)
 ## demography is the survey-year population socialmixr uses for this survey
@@ -28,4 +30,4 @@ new_pop <- setNames(as.vector(tapply(tp$population, grp, sum)), ageGroups)
 print(round(mm, 2))
 print(cbind(orig_pop, new_pop))
 
-saveVars(mm, orig_pop, new_pop, ageGroups, sourceCountry, targetCountry, targetYear)
+saveVars(mm, orig_pop, new_pop, ageGroups, sourceLabel, targetLabel)

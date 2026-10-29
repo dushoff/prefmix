@@ -26,6 +26,20 @@ autopipeR = defined
 prep.Rout: prep.R
 adjust.Rout: adjust.R mixpref.R prep.rda
 heatmaps.Rout: heatmaps.R adjust.rda
+
+## South Africa only: Prem et al. 2021 synthetic matrix (2020), projected to 2035
+premurl = https://raw.githubusercontent.com/kieshaprem/synthetic-contact-matrices/master/generate_synthetic_matrices
+Ignore += prem
+prem/contact_all.rdata:
+	mkdir -p prem && curl -sfL -o $@ $(premurl)/output/syntheticmatrices/contact_all.rdata
+prem/popage_total2020.csv:
+	mkdir -p prem && curl -sfL -o $@ $(premurl)/input/pop/popage_total2020.csv
+
+rsa_prep.Rout: rsa_prep.R prem/contact_all.rdata prem/popage_total2020.csv
+rsa_adjust.Rout: adjust.R mixpref.R rsa_prep.rda
+	$(pipeR)
+rsa_heatmaps.Rout: heatmaps.R rsa_adjust.rda
+	$(pipeR)
 ## heatmaps.Rout.pdf: heatmaps.R
 
 ######################################################################
